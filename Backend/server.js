@@ -1,9 +1,23 @@
-const http = require('http');
-const app = require('./app');
-const port = process.env.port || 3000;
+import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
+import cors from "cors";
+import connectDB from "./db/db.js";
+import userRoute from "./routes/userRoute.js";
 
-const server = http.createServer(app);
+const app = express();
+const port = process.env.PORT || 4000;
+app.use(cors());
+app.use(express.json());
 
-server.listen(port, () => {
-    console.log(`Server is listening on port ${port}`);
+app.get("/", (req, res) => {
+  res.send("API Working");
+});
+
+connectDB();
+
+app.use("/users", userRoute);
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
