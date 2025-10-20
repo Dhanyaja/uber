@@ -110,3 +110,72 @@ curl -Method POST -Uri "http://localhost:3000/users/register" -ContentType "appl
 
 ---
 Generated based on the server files in this repository (routes, controllers, services, and models).
+
+## Login Endpoint
+
+This document also covers the POST `/users/login` endpoint used to authenticate an existing user.
+
+### Endpoint
+
+- URL: `/users/login`
+- Method: `POST`
+- Content-Type: `application/json`
+
+### Purpose
+
+Authenticate a user with email and password. On success the server returns a JWT auth token and the user object (without password). On failure it returns validation errors or authentication errors.
+
+### Request body
+
+JSON object with the following fields:
+
+- `email` (string) — required, must be a valid email
+- `password` (string) — required, minimum 6 characters
+
+Example request body:
+
+{
+  "email": "john.doe@example.com",
+  "password": "secret123"
+}
+
+Validation notes (based on `routes/userRoute.js`):
+- `email` uses express-validator's `isEmail()` check.
+- `password` is validated to be at least 6 characters long.
+
+### Responses
+
+- 200 OK
+  - Description: Authentication successful.
+  - Body: `{ "token": <jwt>, "user": <user object> }`
+
+- 400 Bad Request
+  - Description: Validation failed for the request body.
+  - Body: `{ "errors": [ { "msg": "<message>", "param": "<field>", ... } ] }`
+
+- 401 Unauthorized
+  - Description: Invalid credentials (email not found or password mismatch).
+  - Body: `{ "message": "Invalid email or password" }` (actual message depends on controller implementation).
+
+- 500 Internal Server Error
+  - Description: An unexpected server/database error occurred.
+  - Body: `{ "message": "Internal Server Error" }`
+
+### Example cURL (PowerShell)
+
+curl -Method POST -Uri "http://localhost:3000/users/login" -ContentType "application/json" -Body (
+  ConvertTo-Json @{
+    email = 'john.doe@example.com'
+    password = 'secret123'
+  }
+)
+
+### Implementation notes
+
+- The route validators for login are defined in `routes/userRoute.js` and the controller should use `validationResult` to return errors when validation fails.
+- The controller typically finds the user by email, compares the hashed password with `comparePassword`, and returns a token via `generateAuthToken` on success.
+
+### Testing
+
+- Ensure the registered user exists in the database before testing login.
+- Use the provided cURL/PowerShell example or Postman to test success and failure cases.
