@@ -5,6 +5,7 @@ import express from "express";
 import cors from "cors";
 import connectDB from "./db/db.js";
 import userRoute from "./routes/userRoute.js";
+import captainRoute from "./routes/captainRoute.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 connectDB();
 
 app.use("/users", userRoute);
+app.use("/captains", captainRoute);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
